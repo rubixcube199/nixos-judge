@@ -75,7 +75,6 @@
 
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
-
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.judge = {
     isNormalUser = true;
@@ -106,16 +105,131 @@
   hardware.opengl.driSupport32Bit = true;
   hardware.pulseaudio.support32Bit = true;
   nixpkgs.config.allowUnfreePredicate = (pkg: builtins.elem (builtins.parseDrvName pkg.name).name [ "steam" ]);
-  nix.settings = {
-      substituters = ["https://nix-gaming.cachix.org"];
-      trusted-public-keys = ["nix-gaming.cachix.org-1:nbjlureqMbRAxR1gJ/f3hxemL9svXaZF/Ees8vCUUs4="];
+
+  # General nix settings
+  nix = {
+  package = pkgs.nixFlakes;
+  extraOptions = ''
+      experimental-features = nix-command flakes
+    '';
   };
+  nix = {
+    # Nix.conf settings
+    settings = {
+      # Accept flake configs by default
+      accept-flake-config = true;
+
+      # Max number of parallel jobs
+      max-jobs = "auto";
+
+      # Enable certain system features
+      system-features = ["big-parallel" "kvm"];
+    };
+  };
+
+  # This is meant to be for x86_64 only, need to use a different config for aarch64
+  nixpkgs.hostPlatform = "x86_64-linux";
+
+  # Hardened SSH configuration
+  services.openssh = {
+    extraConfig = ''
+      AllowTcpForwarding no
+      HostKeyAlgorithms ssh-ed25519,ssh-ed25519-cert-v01@openssh.com,sk-ssh-ed25519@openssh.com,sk-ssh-ed25519-cert-v01@openssh.com,rsa-sha2-256,rsa-sha2-512,rsa-sha2-256-cert-v01@openssh.com,rsa-sha2-512-cert-v01@openssh.com
+      PermitTunnel no
+    '';
+    settings = {
+      Ciphers = [
+        "aes256-gcm@openssh.com"
+        "aes256-ctr,aes192-ctr"
+        "aes128-ctr"
+        "aes128-gcm@openssh.com"
+        "chacha20-poly1305@openssh.com"
+      ];
+      KbdInteractiveAuthentication = false;
+      KexAlgorithms = [
+        "curve25519-sha256"
+        "curve25519-sha256@libssh.org"
+        "diffie-hellman-group16-sha512"
+        "diffie-hellman-group18-sha512"
+        "sntrup761x25519-sha512@openssh.com"
+      ];
+
+      X11Forwarding = false;
+    };
+  };
+
+  # Client side SSH configuration
+  programs.ssh = {
+    ciphers = [
+      "aes256-gcm@openssh.com"
+      "aes256-ctr,aes192-ctr"
+      "aes128-ctr"
+      "aes128-gcm@openssh.com"
+      "chacha20-poly1305@openssh.com"
+    ];
+    hostKeyAlgorithms = [
+      "ssh-ed25519"
+      "ssh-ed25519-cert-v01@openssh.com"
+      "sk-ssh-ed25519@openssh.com"
+      "sk-ssh-ed25519-cert-v01@openssh.com"
+      "rsa-sha2-512"
+      "rsa-sha2-512-cert-v01@openssh.com"
+      "rsa-sha2-256"
+      "rsa-sha2-256-cert-v01@openssh.com"
+    ];
+    kexAlgorithms = [
+      "curve25519-sha256"
+      "curve25519-sha256@libssh.org"
+      "diffie-hellman-group16-sha512"
+      "diffie-hellman-group18-sha512"
+      "sntrup761x25519-sha512@openssh.com"
+    ];
+    knownHosts = {
+      aur-rsa = {
+        hostNames = ["aur.archlinux.org"];
+        publicKey = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDKF9vAFWdgm9Bi8uc+tYRBmXASBb5cB5iZsB7LOWWFeBrLp3r14w0/9S2vozjgqY5sJLDPONWoTTaVTbhe3vwO8CBKZTEt1AcWxuXNlRnk9FliR1/eNB9uz/7y1R0+c1Md+P98AJJSJWKN12nqIDIhjl2S1vOUvm7FNY43fU2knIhEbHybhwWeg+0wxpKwcAd/JeL5i92Uv03MYftOToUijd1pqyVFdJvQFhqD4v3M157jxS5FTOBrccAEjT+zYmFyD8WvKUa9vUclRddNllmBJdy4NyLB8SvVZULUPrP3QOlmzemeKracTlVOUG1wsDbxknF1BwSCU7CmU6UFP90kpWIyz66bP0bl67QAvlIc52Yix7pKJPbw85+zykvnfl2mdROsaT8p8R9nwCdFsBc9IiD0NhPEHcyHRwB8fokXTajk2QnGhL+zP5KnkmXnyQYOCUYo3EKMXIlVOVbPDgRYYT/XqvBuzq5S9rrU70KoI/S5lDnFfx/+lPLdtcnnEPk=";
+      };
+      aur-ed25519 = {
+        hostNames = ["aur.archlinux.org"];
+        publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEuBKrPzbawxA/k2g6NcyV5jmqwJ2s+zpgZGZ7tpLIcN";
+      };
+      github-rsa = {
+        hostNames = ["github.com"];
+        publicKey = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=";
+      };
+      github-ed25519 = {
+        hostNames = ["github.com"];
+        publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl";
+      };
+      gitlab-rsa = {
+        hostNames = ["gitlab.com"];
+        publicKey = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCsj2bNKTBSpIYDEGk9KxsGh3mySTRgMtXL583qmBpzeQ+jqCMRgBqB98u3z++J1sKlXHWfM9dyhSevkMwSbhoR8XIq/U0tCNyokEi/ueaBMCvbcTHhO7FcwzY92WK4Yt0aGROY5qX2UKSeOvuP4D6TPqKF1onrSzH9bx9XUf2lEdWT/ia1NEKjunUqu1xOB/StKDHMoX4/OKyIzuS0q/T1zOATthvasJFoPrAjkohTyaDUz2LN5JoH839hViyEG82yB+MjcFV5MU3N1l1QL3cVUCh93xSaua1N85qivl+siMkPGbO5xR/En4iEY6K2XPASUEMaieWVNTRCtJ4S8H+9";
+      };
+      gitlab-ed25519 = {
+        hostNames = ["gitlab.com"];
+        publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAfuCHKVTjquxvt6CM6tdG4SLp1Btn/nOeHHE5UOzRdf";
+      };
+    };
+  };
+
+  # Enable all hardware drivers
+  hardware.enableRedistributableFirmware = true;
+
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     age
     bind
     neovim
+    catppuccin
+    catppuccin-kde
+    tmuxPlugins.catppuccin
+    catppuccin-gtk
+    catppuccin-kvantum
+    catppuccin-cursors
+    vimPlugins.catppuccin-vim
+    vimPlugins.catppuccin-nvim
+    emacsPackages.catppuccin-theme
     vimPlugins.zoxide-vim
     vimPlugins.zoomwintab-vim
     vimPlugins.zk-nvim
@@ -392,6 +506,53 @@
     catppuccin-kde
     kde-rounded-corners
     steam
+    p7zip
+    unzip
+    xclip
+    libsForQt5.kded
+    libsForQt5.kdev-php
+    libsForQt5.kdesu
+    libsForQt5.kdevelop
+    libsForQt5.kdev-python
+    libsForQt5.kdeclarative
+    libsForQt5.kdecoration
+    libsForQt5.kdepim-addons
+    libsForQt5.kde-cli-tools
+    libsForQt5.kdevelop-pg-qt
+    libsForQt5.kdepim-runtime
+    libsForQt5.kdebugsettings
+    libsForQt5.kde-gtk-config
+    libsForQt5.kdesignerplugin
+    libsForQt5.kdelibs4support
+    libsForQt5.kde2-decoration
+    libsForQt5.kdeplasma-addons
+    libsForQt5.kdevelop-unwrapped
+    libsForQt5.kde-inotify-survey
+    libsForQt5.kdenetwork-filesharing
+    libsForQt5.kdegraphics-mobipocket
+    libsForQt5.kdegraphics-thumbnailers
+    plasma-hud
+    plasma-pass
+    libsForQt5.plasma-pa
+    libsForQt5.plasma-nm
+    libsForQt5.plasmatube
+    libsForQt5.plasma-sdk
+    libsForQt5.plasma-integration
+    libsForQt5.plasma-browser-integration
+    plasma-theme-switcher
+    wacomtablet
+    kile
+    flatpak-builder
+    sweet-nova
+    libsForQt5.flatpak-kcm
+    weechat-unwrapped
+    weechat
+    libsForQt5.neochat
+    protontricks
+    protonup-qt
+    protonup-ng
+    vscode-with-extensions
+    emacsPackages.weechat
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -420,7 +581,7 @@
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
+  networking.firewall.enable = false;
   fonts = {
     fonts = with pkgs; [
       noto-fonts
