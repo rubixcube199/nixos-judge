@@ -1,4 +1,3 @@
-
 { config, pkgs, ... }:
 
 {
@@ -8,11 +7,23 @@
     ];
 
   # Bootloader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  # boot.loader.systemd-boot.enable = true;
+  # boot.loader.efi.canTouchEfiVariables = true;
 
-  boot.initrd.luks.devices."luks-f475e108-8d9c-4807-9ceb-a4ca68d672ff".device = "/dev/disk/by-uuid/f475e108-8d9c-4807-9ceb-a4ca68d672ff";
-  networking.hostName = "nixos"; # Define your hostname.
+ boot = {
+    tmp.cleanOnBoot = true;
+    supportedFilesystems = [ "ntfs" ];
+    loader = {
+      timeout = 1;
+      systemd-boot.enable = true;
+      efi.canTouchEfiVariables = true;
+    };
+  };
+
+  boot.initrd.luks.devices."luks-0a565eff-e722-43c8-9305-0fa46c0717f9".device = "/dev/disk/by-uuid/0a565eff-e722-43c8-9305-0fa46c0717f9";
+
+
+   networking.hostName = "judgemental"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
@@ -42,10 +53,12 @@
 
   # Enable the X11 windowing system.
   services.xserver.enable = true;
-
-  # Enable the KDE Plasma Desktop Environment.
-  services.xserver.displayManager.sddm.enable = true;
-  services.xserver.desktopManager.plasma5.enable = true;
+  programs.hyprland.enable = true;
+  #services.xserver.desktopManager.gnome.enable = true;
+  #services.xserver.desktopManager.plasma5.enable = true;
+  services.xserver.displayManager.gdm.enable = true;
+  #services.xserver.desktopManager.cinnamon.enable = true;
+  #services.xserver.desktopManager.deepin.enable = true;
 
   # Configure keymap in X11
   services.xserver = {
@@ -75,59 +88,37 @@
 
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
+
   # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users.judge = {
+    users.users.judge = {
     isNormalUser = true;
     description = "Coal-Coloured Judgement Crow";
-    extraGroups = [ "networkmanager" "wheel" ];
-    packages = with pkgs; [
-      firefox
-      discord
-      google-chrome
-      kate
-      thunderbird
-      neofetch
-      vivaldi
-      vivaldi-ffmpeg-codecs
-      tidal-hifi
-      widevine-cdm
-      chatterino2
-
+    extraGroups = [
+      "root"
+      "flatpak"
+      "disk"
+      "qemu"
+      "kvm"
+      "sshd"
+      "networkmanager"
+      "wheel"
+      "audio"
+      "video"
+      "libvirtd"
     ];
   };
 
-  # Allow unfree packages
+  documentation.nixos.enable = false; # .desktop
   nixpkgs.config.allowUnfree = true;
-  nixpkgs.config.permittedInsecurePackages = [
-                "openssl-1.1.1v"
-		"python-2.7.18.6"
-              ];
-  hardware.opengl.driSupport32Bit = true;
-  hardware.pulseaudio.support32Bit = true;
-  nixpkgs.config.allowUnfreePredicate = (pkg: builtins.elem (builtins.parseDrvName pkg.name).name [ "steam" ]);
-
-  # General nix settings
+  nixpkgs.config.joypixels.acceptLicense = true;
   nix = {
-  package = pkgs.nixFlakes;
-  extraOptions = ''
-      experimental-features = nix-command flakes
-    '';
-  };
-  nix = {
-    # Nix.conf settings
     settings = {
-      # Accept flake configs by default
-      accept-flake-config = true;
-
-      # Max number of parallel jobs
-      max-jobs = "auto";
-
-      # Enable certain system features
-      system-features = ["big-parallel" "kvm"];
+      experimental-features = "nix-command flakes";
+      auto-optimise-store = true;
     };
   };
 
-  # This is meant to be for x86_64 only, need to use a different config for aarch64
+     # This is meant to be for x86_64 only, need to use a different config for aarch64
   nixpkgs.hostPlatform = "x86_64-linux";
 
   # Hardened SSH configuration
@@ -214,10 +205,131 @@
 
   # Enable all hardware drivers
   hardware.enableRedistributableFirmware = true;
-
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
   environment.systemPackages = with pkgs; [
+    vim
+    obs-studio
+    obs-cli
+    neofetch
+    floorp
+    gtklock
+    gtklock-powerbar-module
+    gtklock-userinfo-module
+    gtklock-playerctl-module
+    playerctl
+    fuzzel
+    foot
+    gjs
+    gnome.gnome-control-center
+    gnome.gnome-bluetooth
+    gobject-introspection
+    gtk2
+    gtk3
+    gtk4
+    gtk-layer-shell
+    meson
+    unzip
+    gcc
+    clang
+    rocmPackages.llvm.clang
+    meson-tools
+    libdbusmenu-gtk2
+    swww
+    waypaper
+    wlogout
+    libdbusmenu-gtk3
+    armcord
+    nodejs_18
+    nodejs_20
+    nodejs_21
+    sassc
+    swayidle
+    typescript
+    upower
+    webp-pixbuf-loader
+    tesseract
+    yad
+    ydotool
+    adw-gtk3
+    gradience
+    cava
+    gojq
+    discord
+    kate
+    tmux
+    zellij
+    grim
+    gnome.nautilus
+    slurp
+    wl-clipboard
+    git-repo
+    powershell
+    rofi
+    wofi
+    btop
+    ripgrep
+    eww
+    swaybg
+    lolcat
+    apktool
+    genymotion
+    killall
+    gnome.gnome-keyring
+    android-tools
+    android-udev-rules
+    discord-canary
+    podman-compose
+    podman-desktop
+    podman-tui
+    podman
+    guix
+    apx
+    appimage-run
+    whois
+    nettools
+    nmap
+    nvd
+    python3
+    sops
+    tldr
+    tmux
+    github-cli
+    git
+    github-desktop
+    wget
+    curl
+    zsh
+    neovim
+    emacs
+    fish
+    kitty
+    alacritty
+    sbctl
+    distrobox
+    podman
+    flatpak
+    gnome.gnome-boxes
+    home-manager
+    neovim
+    git
+    wget
+    kitty
+    alacritty
+    sassc
+    swww
+    firefox
+    discord
+    google-chrome
+    kate
+    thunderbird
+    neofetch
+    vivaldi
+    vivaldi-ffmpeg-codecs
+    tidal-hifi
+    widevine-cdm
+    chatterino2
+    brightnessctl
+    flatpak
+    nerdfonts
     age
     bind
     neovim
@@ -406,7 +518,6 @@
     aspellDicts.de
     aspellDicts.en
     ffmpegthumbnailer
-    floorp
     freerdp
     element-desktop-wayland
     element-desktop
@@ -449,6 +560,8 @@
     hugo
     manix
     mongodb-compass
+    blueberry
+    bluez
     nerdctl
     nix-prefetch-git
     nixd
@@ -553,36 +666,52 @@
     protonup-ng
     vscode-with-extensions
     emacsPackages.weechat
+    nodePackages_latest.emojione
+    haskellPackages.emoji
+    emojione
+    emote
+    joypixels
   ];
 
-  # Some programs need SUID wrappers, can be configured further or are
+ # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
+   programs.mtr.enable = true;
+   programs.gnupg.agent = {
+     enable = true;
+     enableSSHSupport = true;
+   };
 
-  # List services that you want to enable:
-  virtualisation.libvirtd.enable = true; 
+ # bluetooth
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = false;
+    settings.General.Experimental = true; # for gnome-bluetooth percentage
+  };
+
+#  virtualisation.libvirtd.enable = true;
+programs.virt-manager.enable = true;
+  virtualisation = {
+    podman.enable = true;
+    libvirtd.enable = true;
+  };
   # enable flatpak support
   services.flatpak.enable = true;
   services.dbus.enable = true;
   xdg.portal = {
     enable = true;
-    # wlr.enable = true;
-    # gtk portal needed to make gtk apps happy
-    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+    wlr.enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-gnome ];
   };
   # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
+  services.openssh.enable = true;
 
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  networking.firewall.enable = false;
-  fonts = {
+  # kde connect
+  networking.firewall = rec {
+    allowedTCPPortRanges = [{ from = 1714; to = 1764; }];
+    allowedUDPPortRanges = allowedTCPPortRanges;
+  };
+
+fonts = {
     fonts = with pkgs; [
       noto-fonts
       noto-fonts-cjk
@@ -591,34 +720,52 @@
       source-han-sans
       source-han-sans-japanese
       source-han-serif-japanese
-      (nerdfonts.override { fonts = [ "Meslo" ]; })
-    ];
+      inconsolata-nerdfont
+      fira-code-nerdfont
+      terminus-nerdfont
+      nerdfonts
+      noto-fonts-monochrome-emoji
+      noto-fonts-emoji-blob-bin
+      noto-fonts-color-emoji
+      noto-fonts-cjk-serif
+      noto-fonts-cjk-sans
+      noto-fonts-lgc-plus
+      lohit-fonts.odia
+      lohit-fonts.tamil
+      lohit-fonts.telugu
+      lohit-fonts.sindhi
+      lohit-fonts.nepali
+      lohit-fonts.marathi
+      lohit-fonts.maithili
+      lohit-fonts.konkani
+      lohit-fonts.kashmiri
+      lohit-fonts.kannada
+      lohit-fonts.gujarati
+      lohit-fonts.bengali
+      lohit-fonts.assamese
+      lohit-fonts.malayalam
+      lohit-fonts.tamil-classical
+      lohit-fonts.gurmukhi
+      lohit-fonts.devanagari
+        ];
     fontconfig = {
       enable = true;
       defaultFonts = {
 	      monospace = [ "Meslo LG M Regular Nerd Font Complete Mono" ];
 	      serif = [ "Noto Serif" "Source Han Serif" ];
 	      sansSerif = [ "Noto Sans" "Source Han Sans" ];
-        };
-     };
-  };
-  
+      };
+    };
+};
   # Copy the NixOS configuration file and link it from the resulting system
   # (/run/current-system/configuration.nix). This is useful in case you
   # accidentally delete configuration.nix.
   system.copySystemConfiguration = true;
-  system.autoUpgrade.enable = true;  
-  system.autoUpgrade.allowReboot = false; 
-  system.autoUpgrade.channel = "https://channels.nixos.org/nixos-23.11";
-  
+  system.autoUpgrade.enable = true;
+  system.autoUpgrade.allowReboot = true;
+  system.autoUpgrade.channel = "https://channels.nixos.org/nixos-23.05";
 
-
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
-  # Before changing this value read the documentation for this option
-  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "23.11"; # Did you read the comment?
+  # This value determines the NixOS release
+  system.stateVersion = "24.05"; # Did you read the comment?
 
 }
