@@ -4,6 +4,9 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      ./uki.nix
+      ./lanzaboote.nix
+      ./chaotic.nix
     ];
 
   # Bootloader.
@@ -13,12 +16,16 @@
  boot = {
     tmp.cleanOnBoot = true;
     supportedFilesystems = [ "ntfs" ];
-    loader = {
-      timeout = 1;
-      systemd-boot.enable = true;
+    #loader = {
+      #timeout = 1;
+      #systemd-boot.enable = true;
+      loader.systemd-boot.enable = lib.mkForce false;
+    lanzaboote = {
+      enable = true;
+      pkiBundle = "/etc/secureboot";
       efi.canTouchEfiVariables = true;
-    };
-  };
+     };
+   };
 
   boot.initrd.luks.devices."luks-0a565eff-e722-43c8-9305-0fa46c0717f9".device = "/dev/disk/by-uuid/0a565eff-e722-43c8-9305-0fa46c0717f9";
 
@@ -60,6 +67,22 @@
   #services.xserver.desktopManager.cinnamon.enable = true;
   #services.xserver.desktopManager.deepin.enable = true;
 
+    systemd = {
+    user.services.polkit-gnome-authentication-agent-1 = {
+      description = "polkit-gnome-authentication-agent-1";
+      wantedBy = [ "graphical-session.target" ];
+      wants = [ "graphical-session.target" ];
+      after = [ "graphical-session.target" ];
+      serviceConfig = {
+        Type = "simple";
+        ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
+        Restart = "on-failure";
+        RestartSec = 1;
+        TimeoutStopSec = 10;
+      };
+    };
+  };
+  
   # Configure keymap in X11
   services.xserver = {
     layout = "us";
@@ -80,12 +103,6 @@
     pulse.enable = true;
     # If you want to use JACK applications, uncomment this
     #jack.enable = true;
-
-    # use the example session manager (no others are packaged yet so this is enabled by default,
-    # no need to redefine it in your config for now)
-    #media-session.enable = true;
-  };
-
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
 
@@ -101,6 +118,10 @@
       "kvm"
       "sshd"
       "networkmanager"
+      "storage"
+      "optical"
+      "sys"
+      "tty"
       "wheel"
       "audio"
       "video"
@@ -207,6 +228,10 @@
   hardware.enableRedistributableFirmware = true;
   environment.systemPackages = with pkgs; [
     vim
+    home-manager
+    audit
+    libargon2
+    gzip
     obs-studio
     obs-cli
     neofetch
@@ -237,13 +262,14 @@
     waypaper
     wlogout
     libdbusmenu-gtk3
-    armcord
     nodejs_18
     nodejs_20
     nodejs_21
     sassc
     swayidle
     typescript
+    guile 
+    json_c
     upower
     webp-pixbuf-loader
     tesseract
@@ -263,8 +289,6 @@
     wl-clipboard
     git-repo
     powershell
-    rofi
-    wofi
     btop
     ripgrep
     eww
@@ -342,125 +366,6 @@
     vimPlugins.catppuccin-vim
     vimPlugins.catppuccin-nvim
     emacsPackages.catppuccin-theme
-    vimPlugins.zoxide-vim
-    vimPlugins.zoomwintab-vim
-    vimPlugins.zk-nvim
-    vimPlugins.zig-vim
-    vimPlugins.zephyr-nvim
-    vimPlugins.zenburn
-    vimPlugins.zenbones-nvim
-    vimPlugins.zen-mode-nvim
-    vimPlugins.zeavim-vim
-    vimPlugins.yuck-vim
-    vimPlugins.yescapsquit-vim
-    vimPlugins.yats-vim
-    vimPlugins.xterm-color-table-vim
-    vimPlugins.xptemplate
-    vimPlugins.wstrip-vim
-    vimPlugins.wrapping-nvim
-    vimPlugins.workflowish
-    vimPlugins.wombat256-vim
-    vimPlugins.wmgraphviz-vim
-    vimPlugins.winshift-nvim
-    vimPlugins.windows-nvim
-    vimPlugins.winbar-nvim
-    vimPlugins.wildfire-vim
-    vimPlugins.wilder-nvim
-    vimPlugins.wiki-vim
-    vimPlugins.wiki-ft-vim
-    vimPlugins.whitespace-nvim
-    vimPlugins.which-key-nvim
-    vimPlugins.wgsl-vim
-    vimPlugins.webapi-vim
-    vimPlugins.wal-vim
-    vimPlugins.vista-vim
-    vimPlugins.vissort-vim
-    vimPlugins.vis
-    vimPlugins.virtual-types-nvim
-    vimPlugins.vimwiki
-    vimPlugins.vimux
-    vimPlugins.vimtex
-    vimPlugins.vimspector
-    vimPlugins.vimshell-vim
-    vimPlugins.vimsence
-    vimPlugins.vimproc-vim
-    vimPlugins.vimpreviewpandoc
-    vimPlugins.vimoutliner
-    vimPlugins.vimfiler-vim
-    vimPlugins.vimelette
-    vimPlugins.vimagit
-    vimPlugins.vimade
-    vimPlugins.vimacs
-    vimPlugins.vim_current_word
-    vimPlugins.vim9-stargate
-    vimPlugins.vim2nix
-    vimPlugins.vim2hs
-    vimPlugins.vim-zettel
-    vimPlugins.vim-yapf
-    vimPlugins.vim-yaml
-    vimPlugins.vim-xkbswitch
-    vimPlugins.vim-xtabline
-    vimPlugins.vim-xdebug
-    vimPlugins.vim-wordy
-    vimPlugins.vim-wordmotion
-    vimPlugins.vim-windowswap
-    vimPlugins.vim-which-key
-    vimPlugins.vim-wayland-clipboard
-    vimPlugins.vim-watchdogs
-    vimPlugins.vim-wakatime
-    vimPlugins.vim-vue-plugin
-    vimPlugins.vim-vue
-    vimPlugins.vim-vsnip-integ
-    vimPlugins.vim-vsnip
-    vimPlugins.vim-vp4
-    vimPlugins.vim-visualstar
-    vimPlugins.vim-visual-star-search
-    vimPlugins.vim-visual-increment
-    vimPlugins.vim-vinegar
-    vimPlugins.vim-vagrant
-    vimPlugins.vim-unimpaired
-    vimPlugins.vim-unicoder
-    vimPlugins.vim-ultest
-    vimPlugins.vim-twiggy
-    vimPlugins.vim-twig
-    vimPlugins.vim-tsx
-    vimPlugins.vim-tridactyl
-    vimPlugins.vim-trailing-whitespace
-    vimPlugins.vim-tpipeline
-    vimPlugins.vim-toml
-    vimPlugins.vim-togglelist
-    vimPlugins.vim-tmux-navigator
-    vimPlugins.vim-tmux-clipboard
-    vimPlugins.vim-tmux
-    vimPlugins.vim-themis
-    wineWowPackages.waylandFull
-    wineWowPackages.unstableFull
-    wineWowPackages.stagingFull
-    wineWowPackages.full
-    wineWowPackages.fonts
-    wineWow64Packages.waylandFull
-    wineWow64Packages.unstableFull
-    wineWow64Packages.stagingFull
-    wineWow64Packages.full
-    wineWow64Packages.fonts
-    winePackages.waylandFull
-    winePackages.unstableFull
-    winePackages.stagingFull
-    winePackages.full
-    wine-wayland
-    wine-staging
-    wine
-    wine64
-    winetricks
-    wineasio
-    winePackages.fonts
-    bottles
-    bottles-unwrapped
-    steamPackages.steamcmd
-    steamPackages.steam-runtime-wrapped
-    steamPackages.steam-runtime
-    steamPackages.steam-fhsenv-without-steam
-    steamPackages.steam
     podman
     podman-desktop
     podman-tui
