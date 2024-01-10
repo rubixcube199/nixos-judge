@@ -249,6 +249,9 @@
     gjs
     gnome.gnome-control-center
     gnome.gnome-bluetooth
+    waybar-mpris
+    waybar
+    plank
     gobject-introspection
     gtk2
     gtk3
