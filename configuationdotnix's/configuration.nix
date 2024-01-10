@@ -4,9 +4,9 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      ./uki.nix
-      ./lanzaboote.nix
-      ./chaotic.nix
+#      ./uki.nix
+#      ./lanzaboote.nix
+#      ./chaotic.nix
     ];
 
   # Bootloader.
@@ -16,18 +16,18 @@
  boot = {
     tmp.cleanOnBoot = true;
     supportedFilesystems = [ "ntfs" ];
-    #loader = {
-      #timeout = 1;
-      #systemd-boot.enable = true;
-      loader.systemd-boot.enable = lib.mkForce false;
-    lanzaboote = {
-      enable = true;
-      pkiBundle = "/etc/secureboot";
+    loader = {
+      timeout = 1;
+      systemd-boot.enable = true;
+#      loader.systemd-boot.enable = lib.mkForce false;
+#    lanzaboote = {
+#      enable = true;
+#      pkiBundle = "/etc/secureboot";
       efi.canTouchEfiVariables = true;
      };
    };
 
-  boot.initrd.luks.devices."luks-0a565eff-e722-43c8-9305-0fa46c0717f9".device = "/dev/disk/by-uuid/0a565eff-e722-43c8-9305-0fa46c0717f9";
+#  boot.initrd.luks.devices."luks-0a565eff-e722-43c8-9305-0fa46c0717f9".device = "/dev/disk/by-uuid/0a565eff-e722-43c8-9305-0fa46c0717f9";
 
 
    networking.hostName = "judgemental"; # Define your hostname.
@@ -59,10 +59,13 @@
   };
 
   # Enable the X11 windowing system.
+  
   services.xserver.enable = true;
   programs.hyprland.enable = true;
-  #services.xserver.desktopManager.gnome.enable = true;
-  #services.xserver.desktopManager.plasma5.enable = true;
+  programs.river.enable = true;
+  programs.wayfire.enable = true;
+  programs.miriway.enable = true;
+  #services.xserver.displayManager.sddm.wayland.enable = true;
   services.xserver.displayManager.gdm.enable = true;
   #services.xserver.desktopManager.cinnamon.enable = true;
   #services.xserver.desktopManager.deepin.enable = true;
@@ -569,6 +572,7 @@
     protontricks
     protonup-qt
     protonup-ng
+    electron-mail
     vscode-with-extensions
     emacsPackages.weechat
     nodePackages_latest.emojione
