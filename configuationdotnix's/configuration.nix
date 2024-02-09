@@ -2,11 +2,8 @@
 
 {
   imports =
-    [ # Include the results of the hardware scan.
+    [
       ./hardware-configuration.nix
-#      ./uki.nix
-#      ./lanzaboote.nix
-#      ./chaotic.nix
     ];
 
   # Bootloader.
@@ -19,25 +16,14 @@
     loader = {
       timeout = 1;
       systemd-boot.enable = true;
-#      loader.systemd-boot.enable = lib.mkForce false;
-#    lanzaboote = {
-#      enable = true;
-#      pkiBundle = "/etc/secureboot";
       efi.canTouchEfiVariables = true;
      };
    };
 
-#  boot.initrd.luks.devices."luks-0a565eff-e722-43c8-9305-0fa46c0717f9".device = "/dev/disk/by-uuid/0a565eff-e722-43c8-9305-0fa46c0717f9";
 
 
-   networking.hostName = "judgemental"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+   networking.hostName = "judgemental";
 
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-
-  # Enable networking
   networking.networkmanager.enable = true;
 
   # Set your time zone.
@@ -62,13 +48,7 @@
   
   services.xserver.enable = true;
   programs.hyprland.enable = true;
-  programs.river.enable = true;
-  programs.wayfire.enable = true;
-  programs.miriway.enable = true;
-  #services.xserver.displayManager.sddm.wayland.enable = true;
   services.xserver.displayManager.gdm.enable = true;
-  #services.xserver.desktopManager.cinnamon.enable = true;
-  #services.xserver.desktopManager.deepin.enable = true;
 
     systemd = {
     user.services.polkit-gnome-authentication-agent-1 = {
@@ -231,355 +211,13 @@
   hardware.enableRedistributableFirmware = true;
   environment.systemPackages = with pkgs; [
     vim
-    home-manager
+    neovim
     audit
-    libargon2
-    gzip
-    obs-studio
-    obs-cli
-    neofetch
-    floorp
-    gtklock
-    gtklock-powerbar-module
-    gtklock-userinfo-module
-    gtklock-playerctl-module
-    playerctl
-    fuzzel
-    foot
-    gjs
     gnome.gnome-control-center
     gnome.gnome-bluetooth
-    waybar-mpris
     waybar
-    plank
-    gobject-introspection
-    gtk2
-    gtk3
-    gtk4
-    gtk-layer-shell
     meson
-    unzip
-    gcc
-    clang
-    rocmPackages.llvm.clang
-    meson-tools
-    libdbusmenu-gtk2
-    swww
-    waypaper
-    wlogout
-    libdbusmenu-gtk3
-    nodejs_18
-    nodejs_20
-    nodejs_21
-    sassc
-    swayidle
-    typescript
-    guile 
-    json_c
-    upower
-    webp-pixbuf-loader
-    tesseract
-    yad
-    ydotool
-    adw-gtk3
-    gradience
-    cava
-    gojq
-    discord
-    kate
-    tmux
-    zellij
-    grim
-    gnome.nautilus
-    slurp
-    wl-clipboard
-    git-repo
-    powershell
-    btop
-    ripgrep
-    eww
-    swaybg
-    lolcat
-    apktool
-    genymotion
-    killall
-    gnome.gnome-keyring
-    android-tools
-    android-udev-rules
-    discord-canary
-    podman-compose
-    podman-desktop
-    podman-tui
-    podman
-    guix
-    apx
-    appimage-run
-    whois
-    nettools
-    nmap
-    nvd
-    python3
-    sops
-    tldr
-    tmux
-    github-cli
-    git
-    github-desktop
-    wget
-    curl
-    zsh
-    neovim
-    emacs
-    fish
-    kitty
-    alacritty
-    sbctl
-    distrobox
-    podman
-    flatpak
-    gnome.gnome-boxes
-    home-manager
-    neovim
-    git
-    wget
-    kitty
-    alacritty
-    sassc
-    swww
-    firefox
-    discord
-    google-chrome
-    kate
-    thunderbird
-    neofetch
-    vivaldi
-    vivaldi-ffmpeg-codecs
-    tidal-hifi
-    widevine-cdm
-    chatterino2
-    brightnessctl
-    flatpak
-    nerdfonts
-    age
-    bind
-    neovim
-    catppuccin
-    catppuccin-kde
-    tmuxPlugins.catppuccin
-    catppuccin-gtk
-    catppuccin-kvantum
-    catppuccin-cursors
-    vimPlugins.catppuccin-vim
-    vimPlugins.catppuccin-nvim
-    emacsPackages.catppuccin-theme
-    podman
-    podman-desktop
-    podman-tui
-    podman-compose
-    guix
-    apx
-    emacs
-    emacsPackages.guix
-    emacsPackages.twitch-api
-    emacsPackages.helm-twitch
-    emacsPackages.zzz-to-char
-    emacsPackages.zygospore
-    emacsPackages.kdeconnect
-    davinci-resolve
-    android-tools
-    android-udev-rules
-    android-file-transfer
-    androidStudioPackages.canary
-    anbox
-    apkid
-    genymotion
-    apktool
-    git-repo
-    gnugrep
-    gnumake
-    flameshot
-    eww
-    powershell
-    rofi
-    ripgrep
-    btop
-    cached-nix-shell
-    cloudflared
-    duf
-    eza
-    jq
-    killall
-    micro
-    mosh
-    nettools
-    nmap
-    nvd
-    python3
-    sops
-    tldr
-    tmux
-    traceroute
-    ugrep
-    wget
-    whois
-    acpi
-    appimage-run
-    asciinema
-    aspell
-    aspellDicts.de
-    aspellDicts.en
-    ffmpegthumbnailer
-    freerdp
-    element-desktop-wayland
-    element-desktop
-    gimp
-    revolt-desktop
-    helvum
-    hunspell
-    hunspellDicts.de_DE
-    hunspellDicts.en_US
-    inkscape
-    krita
-    libreoffice-qt
-    libsForQt5.kdenlive
-    libsForQt5.kleopatra
-    libsForQt5.krdc
-    libsForQt5.krfb
-    libsecret
-    libva-utils
-    lm_sensors
-    movit
-    nextcloud-client
-    okular
-    qbittorrent
-    rustdesk
-    syncthingtray
-    telegram-desktop
-    tor-browser
-    usbutils
-    vorta
-    vulkan-tools
-    yt-dlp
-    ansible
-    beekeeper-studio
-    bind.dnsutils
-    deadnix
-    gh
-    heroku
-    discord-canary
-    discord-gamesdk
-    hugo
-    manix
-    mongodb-compass
-    blueberry
-    bluez
-    nerdctl
-    nix-prefetch-git
-    nixd
-    nixos-generators
-    nixpkgs-lint
-    nixpkgs-review
-    nodePackages_latest.prettier
-    nodejs
-    pacman
-    ruff
-    shellcheck
-    shfmt
-    speedcrunch
-    statix
-    termius
-    vagrant
-    ventoy-full
-    xdg-utils
-    yarn
-    yubikey-manager-qt
-    yubioath-flutter
-    ocrmypdf
-    speedcrunch
-    sqlite
-    sqlitebrowser
-    btrfs-progs
-    fwupd
-    fwupd-efi
-    dosfstools
-    e2fsprogs
-    efibootmgr
-    flashrom
-    gparted
-    home-manager
-    hwinfo
-    qemu-utils
-    rsync
-    testdisk
-    fish
-    zsh
-    curl
-    flatpak
-    libsForQt5.kdeconnect-kde
-    git-lfs
-    git
-    github-desktop
-    virt-manager
-    gitkraken
-    gnome.gnome-boxes
-    vim
-    nano
-    distrobox
-    qemu
-    kde-gruvbox
-    catppuccin-kde
-    kde-rounded-corners
-    steam
-    p7zip
-    unzip
-    xclip
-    libsForQt5.kded
-    libsForQt5.kdev-php
-    libsForQt5.kdesu
-    libsForQt5.kdevelop
-    libsForQt5.kdev-python
-    libsForQt5.kdeclarative
-    libsForQt5.kdecoration
-    libsForQt5.kdepim-addons
-    libsForQt5.kde-cli-tools
-    libsForQt5.kdevelop-pg-qt
-    libsForQt5.kdepim-runtime
-    libsForQt5.kdebugsettings
-    libsForQt5.kde-gtk-config
-    libsForQt5.kdesignerplugin
-    libsForQt5.kdelibs4support
-    libsForQt5.kde2-decoration
-    libsForQt5.kdeplasma-addons
-    libsForQt5.kdevelop-unwrapped
-    libsForQt5.kde-inotify-survey
-    libsForQt5.kdenetwork-filesharing
-    libsForQt5.kdegraphics-mobipocket
-    libsForQt5.kdegraphics-thumbnailers
-    plasma-hud
-    plasma-pass
-    libsForQt5.plasma-pa
-    libsForQt5.plasma-nm
-    libsForQt5.plasmatube
-    libsForQt5.plasma-sdk
-    libsForQt5.plasma-integration
-    libsForQt5.plasma-browser-integration
-    plasma-theme-switcher
-    wacomtablet
-    kile
-    flatpak-builder
-    sweet-nova
-    libsForQt5.flatpak-kcm
-    weechat-unwrapped
-    weechat
-    libsForQt5.neochat
-    protontricks
-    protonup-qt
-    protonup-ng
-    electron-mail
-    vscode-with-extensions
-    emacsPackages.weechat
-    nodePackages_latest.emojione
-    haskellPackages.emoji
+    make
     emojione
     emote
     joypixels
